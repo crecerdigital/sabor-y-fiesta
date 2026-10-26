@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sabor &amp; Fiesta — Taste-Aware Event Concierge</title>
+<style>
+  :root{
+    --bg:#14100c; --card:#1f1811; --card2:#2a2015; --gold:#d4af37; --gold2:#f0d060;
+    --red:#c0392b; --orange:#e67e22; --cream:#f5ead6; --muted:#b8a888; --ok:#27ae60;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Georgia,'Times New Roman',serif;background:radial-gradient(1200px 600px at 50% -10%,#3a2410,var(--bg));color:var(--cream);min-height:100vh}
+  header{text-align:center;padding:36px 16px 8px}
+  header h1{margin:0;font-size:2.6rem;letter-spacing:1px;color:var(--gold2)}
+  header h1 span{color:var(--orange)}
+  header p{color:var(--muted);margin:6px 0 0;font-style:italic}
+  .langbar{text-align:center;margin-top:10px}
+  .langbar button{background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:20px;padding:4px 14px;cursor:pointer;font-family:inherit}
+  .langbar button.active{background:var(--gold);color:#14100c;font-weight:bold}
+  main{max-width:860px;margin:0 auto;padding:16px}
+  .panel{background:var(--card);border:1px solid #3a2d1a;border-radius:16px;padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+  label{display:block;margin:16px 0 6px;color:var(--gold2);font-size:.95rem;letter-spacing:.4px}
+  input[type=text],input[type=number],select{width:100%;padding:11px;border-radius:10px;border:1px solid #4a3a20;background:var(--card2);color:var(--cream);font-family:inherit;font-size:1rem}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{border:1px solid #4a3a20;background:var(--card2);color:var(--cream);border-radius:20px;padding:7px 14px;cursor:pointer;font-family:inherit;font-size:.92rem;transition:all .15s}
+  .chip.on{background:linear-gradient(135deg,var(--gold),var(--orange));color:#171106;border-color:var(--gold);font-weight:bold}
+  .go{margin-top:24px;width:100%;padding:15px;font-size:1.15rem;font-family:inherit;font-weight:bold;color:#171106;background:linear-gradient(135deg,var(--gold2),var(--orange));border:none;border-radius:12px;cursor:pointer;letter-spacing:.5px}
+  .go:hover{filter:brightness(1.08)}
+  .badge{display:inline-block;border-radius:20px;padding:5px 13px;font-size:.82rem;margin:4px 0 10px}
+  .badge.demo{background:#4a3312;color:#ffd977;border:1px solid #8a6d1f}
+  .badge.live{background:#123f27;color:#8ff0b3;border:1px solid var(--ok)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .rcard{background:var(--card2);border:1px solid #3a2d1a;border-radius:14px;padding:16px}
+  .rcard h3{margin:0 0 6px;color:var(--gold2);font-size:1.05rem}
+  .rcard .big{font-size:1.25rem;color:#fff;margin:2px 0}
+  .rcard .why{color:var(--muted);font-size:.92rem;line-height:1.45}
+  .rcard .meta{color:var(--orange);font-size:.88rem}
+  .timeline{list-style:none;margin:8px 0 0;padding:0}
+  .timeline li{padding:9px 0;border-bottom:1px dashed #3a2d1a;display:flex;gap:12px}
+  .timeline .t{color:var(--gold2);font-weight:bold;min-width:74px}
+  .conns{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+  .conn{background:#33270f;border:1px solid #6e5518;color:#ffd977;border-radius:16px;padding:4px 11px;font-size:.83rem}
+  footer{text-align:center;color:var(--muted);font-size:.85rem;padding:26px 16px 40px;line-height:1.6}
+  .hidden{display:none}
+  #error{color:#ff9c8a;text-align:center;margin-top:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>SABOR <span>&amp;</span> FIESTA</h1>
+  <p id="tagline">Taste-Aware Event Concierge · Tu conserje de eventos con sabor</p>
+  <div class="langbar">
+    <button id="btn-es" class="active" onclick="setLang('es')">Español</button>
+    <button id="btn-en" onclick="setLang('en')">English</button>
+  </div>
+</header>
+
+<main>
+  <section class="panel" id="form-panel">
+    <label data-i18n="name">¿Cómo te llamas?</label>
+    <input type="text" id="name" placeholder="Ej.: María">
+
+    <label data-i18n="city">Ciudad del evento</label>
+    <select id="city">
+      <option>Charlotte, NC</option>
+      <option>Miami, FL</option>
+      <option>New York, NY</option>
+      <option>Ciudad de México</option>
+      <option>Bogotá</option>
+      <option>Madrid</option>
+    </select>
+    <input type="text" id="city-other" style="margin-top:8px" data-i18n-ph="cityOther" placeholder="¿Otra ciudad? Escríbela aquí (opcional)">
+
+    <label data-i18n="cuisines">Comida que amas (elige varias)</label>
+    <div class="chips" id="cuisines"></div>
+
+    <label data-i18n="music">Música que te mueve (elige varias)</label>
+    <div class="chips" id="music"></div>
+
+    <label data-i18n="ambiance">Ambiente ideal</label>
+    <select id="ambiance"></select>
+
+    <label data-i18n="occasion">Ocasión</label>
+    <select id="occasion"></select>
+
+    <label data-i18n="guests">¿Cuántos invitados?</label>
+    <input type="number" id="guests" value="10" min="1" max="500">
+
+    <button class="go" id="go" data-i18n="go">✨ Crear mi plan con sabor</button>
+    <div id="error"></div>
+  </section>
+
+  <section class="panel hidden" id="result-panel" style="margin-top:18px">
+    <div id="badge"></div>
+    <h2 id="greeting" style="margin:2px 0;color:var(--gold2)"></h2>
+    <div id="occasion-line" style="color:var(--muted)"></div>
+
+    <label data-i18n="connections" style="margin-top:18px">🔗 Así se conectan tus gustos</label>
+    <div class="conns" id="connections"></div>
+
+    <div class="grid">
+      <div class="rcard">
+        <h3 data-i18n="restaurant">🍽️ La cena</h3>
+        <div class="big" id="r-name"></div>
+        <div class="meta" id="r-meta"></div>
+        <div id="r-dish" style="margin:6px 0"></div>
+        <div class="why" id="r-why"></div>
+      </div>
+      <div class="rcard">
+        <h3 data-i18n="musicCard">🎵 La música</h3>
+        <div class="big" id="m-name"></div>
+        <div class="meta" id="m-vibe"></div>
+        <div class="why" id="m-why" style="margin-top:6px"></div>
+      </div>
+      <div class="rcard">
+        <h3 data-i18n="activity">🎉 El momento</h3>
+        <div class="big" id="a-name"></div>
+        <div class="why" id="a-why"></div>
+      </div>
+      <div class="rcard">
+        <h3 data-i18n="dessert">🍰 El toque dulce</h3>
+        <div class="big" id="s-name"></div>
+        <div class="why" id="s-why"></div>
+      </div>
+    </div>
+
+    <label data-i18n="timeline" style="margin-top:20px">🕒 Tu noche, paso a paso</label>
+    <ul class="timeline" id="timeline"></ul>
+    <div id="budget" style="color:var(--muted);margin-top:10px"></div>
+
+    <button class="go" onclick="resetForm()" data-i18n="again">↺ Crear otro plan</button>
+  </section>
+</main>
+
+<footer>
+  Sabor &amp; Fiesta — Taste-Aware Event Concierge · Crecer Digital<br>
+  <span data-i18n="foot">Construido para el Qloo Agentic Hackathon. Con la API de Qloo conectada, las recomendaciones de restaurantes y artistas vienen del grafo de gustos de Qloo (más de 250M de entidades); sin clave, la demo usa datos locales curados y lo declara arriba.</span>
+</footer>
+
+<script>
+const I18N = {
+  es: {
+    name:"¿Cómo te llamas?", city:"Ciudad del evento", cityOther:"¿Otra ciudad? Escríbela aquí (opcional)",
+    cuisines:"Comida que amas (elige varias)", music:"Música que te mueve (elige varias)",
+    ambiance:"Ambiente ideal", occasion:"Ocasión", guests:"¿Cuántos invitados?",
+    go:"✨ Crear mi plan con sabor", connections:"🔗 Así se conectan tus gustos",
+    restaurant:"🍽️ La cena", musicCard:"🎵 La música", activity:"🎉 El momento", dessert:"🍰 El toque dulce",
+    timeline:"🕒 Tu noche, paso a paso", again:"↺ Crear otro plan",
+    badgeDemo:"⚠️ MODO DEMO — datos locales curados (conecta la API key de Qloo para datos en vivo)",
+    badgeLive:"✅ EN VIVO — recomendaciones de la API de Qloo",
+    err:"No se pudo crear el plan. ¿Abriste la página desde el servidor? Corre: python3 app.py y entra a http://localhost:8000",
+    foot:"Construido para el Qloo Agentic Hackathon. Con la API de Qloo conectada, las recomendaciones de restaurantes y artistas vienen del grafo de gustos de Qloo (más de 250M de entidades); sin clave, la demo usa datos locales curados y lo declara arriba."
+  },
+  en: {
+    name:"What's your name?", city:"Event city", cityOther:"Another city? Type it here (optional)",
+    cuisines:"Food you love (pick several)", music:"Music that moves you (pick several)",
+    ambiance:"Ideal vibe", occasion:"Occasion", guests:"How many guests?",
+    go:"✨ Build my flavor-packed plan", connections:"🔗 How your tastes connect",
+    restaurant:"🍽️ Dinner", musicCard:"🎵 The music", activity:"🎉 The moment", dessert:"🍰 The sweet finish",
+    timeline:"🕒 Your night, step by step", again:"↺ Build another plan",
+    badgeDemo:"⚠️ DEMO MODE — curated local data (plug in the Qloo API key for live data)",
+    badgeLive:"✅ LIVE — recommendations from Qloo's API",
+    err:"Couldn't build the plan. Did you open this page from the server? Run: python3 app.py and visit http://localhost:8000",
+    foot:"Built for the Qloo Agentic Hackathon. With the Qloo API connected, restaurant and artist picks come from Qloo's taste graph (250M+ entities); without a key, the demo uses curated local data and says so above."
+  }
+};
+const CUISINES = [
+  ["mexicana","🌮 Mexicana"],["caribena","🏝️ Caribeña"],["italiana","🍝 Italiana"],
+  ["japonesa","🍣 Japonesa"],["americana","🍔 Americana"],["mediterranea","🫒 Mediterránea"],
+  ["peruana","🐟 Peruana"],["espanola","🥘 Española"],["india","🍛 India"]
+];
+const MUSIC = [
+  ["salsa","🎺 Salsa"],["bachata","💃 Bachata"],["merengue","🥁 Merengue"],
+  ["regional","🎻 Regional mexicano"],["jazz","🎷 Jazz"],["boleros","🌹 Boleros"],
+  ["regueton","🔥 Reguetón"],["electronica","🎧 Electrónica"],["pop_latino","🎤 Pop latino"],
+  ["rock_espanol","🎸 Rock en español"]
+];
+const AMBIANCE = { fiesta:"🎉 De fiesta / Party", romantico:"🕯️ Romántico / Romantic", familiar:"👨‍👩‍👧 Familiar / Family", elegante:"🥂 Elegante / Elegant", relajado:"🌅 Relajado / Chill" };
+const OCCASION = { cumpleanos:"🎂 Cumpleaños / Birthday", aniversario:"💍 Aniversario o cita / Anniversary or date", quinceanera:"👑 Quinceañera", familia:"🏠 Reunión familiar / Family gathering", amigos:"🍻 Salida con amigos / Friends night out", negocios:"💼 Cena de negocios / Business dinner" };
+
+let lang = "es";
+const pickedCuisines = new Set(["mexicana"]);
+const pickedMusic = new Set(["salsa"]);
+
+function chips(elId, items, set){
+  const el = document.getElementById(elId);
+  el.innerHTML = "";
+  items.forEach(([key,label])=>{
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip" + (set.has(key) ? " on" : ""); b.textContent = label;
+    b.onclick = ()=>{ set.has(key) ? set.delete(key) : set.add(key); b.classList.toggle("on"); };
+    el.appendChild(b);
+  });
+}
+function fillSelect(id, obj){
+  const el = document.getElementById(id); el.innerHTML = "";
+  Object.entries(obj).forEach(([k,v])=>{ const o=document.createElement("option"); o.value=k; o.textContent=v; el.appendChild(o); });
+}
+function setLang(l){
+  lang = l;
+  document.getElementById("btn-es").classList.toggle("active", l==="es");
+  document.getElementById("btn-en").classList.toggle("active", l==="en");
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ el.textContent = I18N[l][el.dataset.i18n] || el.textContent; });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{ el.placeholder = I18N[l][el.dataset.i18nPh] || el.placeholder; });
+}
+function resetForm(){
+  document.getElementById("result-panel").classList.add("hidden");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+document.getElementById("go").onclick = async ()=>{
+  const err = document.getElementById("error"); err.textContent = "";
+  const other = document.getElementById("city-other").value.trim();
+  const profile = {
+    name: document.getElementById("name").value.trim(),
+    city: other || document.getElementById("city").value,
+    cuisines: [...pickedCuisines],
+    music: [...pickedMusic],
+    ambiance: document.getElementById("ambiance").value,
+    occasion: document.getElementById("occasion").value,
+    guests: document.getElementById("guests").value,
+    lang
+  };
+  try{
+    const res = await fetch("/api/plan", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(profile)});
+    if(!res.ok) throw new Error("bad");
+    const data = await res.json();
+    render(data);
+  }catch(e){ err.textContent = I18N[lang].err; }
+};
+
+function render(d){
+  const T = I18N[lang];
+  const badge = document.getElementById("badge");
+  badge.innerHTML = d.mode === "qloo-live"
+    ? `<span class="badge live">${T.badgeLive}</span>`
+    : `<span class="badge demo">${T.badgeDemo}</span>`;
+  document.getElementById("greeting").textContent = d.greeting;
+  document.getElementById("occasion-line").textContent = d.occasion_line;
+  document.getElementById("connections").innerHTML =
+    d.taste_connections.map(c=>`<span class="conn">${c}</span>`).join("");
+  const p = d.plan;
+  document.getElementById("r-name").textContent = p.restaurant.name;
+  document.getElementById("r-meta").textContent = `${p.restaurant.cuisine} · ${p.restaurant.neighborhood} · ${p.restaurant.price}`;
+  document.getElementById("r-dish").textContent = p.restaurant.dish;
+  document.getElementById("r-why").textContent = p.restaurant.why;
+  document.getElementById("m-name").textContent = p.music.artist + (p.music.also ? " · " + p.music.also : "");
+  document.getElementById("m-vibe").textContent = p.music.vibe;
+  document.getElementById("m-why").textContent = p.music.why;
+  document.getElementById("a-name").textContent = p.activity.name;
+  document.getElementById("a-why").textContent = p.activity.why;
+  document.getElementById("s-name").textContent = p.sweet_finish.name;
+  document.getElementById("s-why").textContent = p.sweet_finish.why;
+  document.getElementById("timeline").innerHTML =
+    p.timeline.map(t=>`<li><span class="t">${t.time}</span><span><b>${t.title}.</b> ${t.detail}</span></li>`).join("");
+  document.getElementById("budget").textContent = p.budget_note;
+  document.getElementById("result-panel").classList.remove("hidden");
+  document.getElementById("result-panel").scrollIntoView({behavior:"smooth"});
+}
+
+chips("cuisines", CUISINES, pickedCuisines);
+chips("music", MUSIC, pickedMusic);
+fillSelect("ambiance", AMBIANCE);
+fillSelect("occasion", OCCASION);
+setLang("es");
+</script>
+</body>
+</html>
